@@ -1,13 +1,21 @@
 "use client";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, User as UserIcon, Truck, Star, Phone, Mail, MapPin, Shield, Calendar, TrendingUp, Route, Wallet, Activity, CheckCircle2, Settings2, BadgePercent, PiggyBank, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft, User as UserIcon, Truck, Star, Phone, Mail, MapPin, Shield,
+  Calendar, TrendingUp, Route, Wallet, Activity, CheckCircle2, Settings2,
+  AlertCircle, Pencil, Trash2, AlertTriangle,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useDriverStore, useFleetStore, useTripStore, useDriverPayrollProfileStore, usePayrollPeriodStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { AddDriverSheet } from "@/components/forms/AddDriverSheet";
+import { toast } from "sonner";
 
 const STATUS_VARIANT: Record<string, any> = {
   active: "success",
@@ -19,11 +27,15 @@ export default function DriverDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const driver = useDriverStore((s) => s.drivers.find((d) => d.id === params.id));
+  const deleteDriver = useDriverStore((s) => s.deleteDriver);
   const vehicles = useFleetStore((s) => s.vehicles);
   const trips = useTripStore((s) => s.trips);
   const profiles = useDriverPayrollProfileStore((s) => s.profiles);
   const summaries = usePayrollPeriodStore((s) => s.summaries);
   const periods = usePayrollPeriodStore((s) => s.periods);
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   if (!driver) {
     return (
@@ -48,13 +60,31 @@ export default function DriverDetailPage() {
   });
   const totalEarned = driverSummaries.filter((s) => s.status === "paid").reduce((a, b) => a + b.netPay, 0);
 
+  const handleDelete = () => {
+    deleteDriver(driver.id);
+    toast.success(`Driver ${driver.name} removed`);
+    router.push("/drivers");
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
         title={driver.name}
         subtitle={`${driver.licenseClass} · License ${driver.licenseNumber}`}
         breadcrumbs={[{ label: "Operations" }, { label: "Drivers", href: "/drivers" }, { label: driver.name }]}
-        actions={<Button variant="outline" onClick={() => router.push("/drivers")}><ArrowLeft className="w-4 h-4" /> Back</Button>}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => router.push("/drivers")}>
+              <ArrowLeft className="w-4 h-4" /> Back
+            </Button>
+            <Button variant="outline" onClick={() => setEditOpen(true)}>
+              <Pencil className="w-4 h-4" /> Edit
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        }
       />
 
       {/* Stat Row */}
@@ -398,6 +428,28 @@ export default function DriverDetailPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Driver Sheet */}
+      <AddDriverSheet open={editOpen} onOpenChange={setEditOpen} editDriver={driver} />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="w-5 h-5" /> Remove Driver
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove <strong>{driver.name}</strong> from the roster?
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete}>Remove Driver</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
