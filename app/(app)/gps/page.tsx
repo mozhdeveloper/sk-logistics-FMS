@@ -12,6 +12,7 @@ import { LiveMapDynamic } from "@/components/maps/LiveMapDynamic";
 import { useFleetStore, useDriverStore, useTripStore } from "@/lib/store";
 import { useAuthStore } from "@/lib/store/auth";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Logo } from "@/components/Brand/Logo";
 import {
   Truck, Search, CheckCircle2, PauseCircle, PowerOff, AlertTriangle,
   MapPin, Phone, MessageSquare, Compass, Gauge, Fuel, Signal, Filter,
@@ -446,7 +447,7 @@ function DriverGpsView({ user, vehicles, drivers, trips }: {
   return (
     <div className="max-w-sm mx-auto -mt-6 -mx-6 min-h-screen flex flex-col bg-gray-50 sm:mx-auto">
       {/* Sticky header */}
-      <header className="sticky top-0 z-30 bg-[#0B1C2E] h-14 px-4 flex items-center justify-between shrink-0">
+      <header className="sticky top-0 z-30 h-14 px-4 flex items-center justify-between shrink-0" style={{ background: "linear-gradient(135deg, #D31A21 0%, #6A0B0B 100%)" }}>
         <button
           onClick={() => router.back()}
           className="w-9 h-9 flex items-center justify-center"
@@ -454,12 +455,7 @@ function DriverGpsView({ user, vehicles, drivers, trips }: {
         >
           <ChevronLeft className="w-5 h-5 text-white" />
         </button>
-        <div className="text-center leading-none">
-          <p className="text-white font-extrabold text-sm tracking-tight">
-            NE<span className="text-teal-400">X</span>
-          </p>
-          <p className="text-[8px] tracking-[0.25em] text-teal-400/80 font-semibold">LOGISTICS</p>
-        </div>
+        <Logo size={30} showWordmark={false} light />
         <button
           onClick={() => {}}
           className="w-9 h-9 flex items-center justify-center"
@@ -470,7 +466,7 @@ function DriverGpsView({ user, vehicles, drivers, trips }: {
       </header>
 
       {/* Page title bar */}
-      <div className="bg-[#0B1C2E] px-5 pb-5 pt-1">
+      <div className="px-5 pb-5 pt-1" style={{ background: "linear-gradient(135deg, #D31A21 0%, #6A0B0B 100%)" }}>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-white font-bold text-lg">My Location</p>

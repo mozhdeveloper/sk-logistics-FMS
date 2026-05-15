@@ -11,6 +11,7 @@ import { useAuthStore } from "@/lib/store/auth";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/Brand/Logo";
 
 const SignatureCanvas: any = dynamic(() => import("react-signature-canvas"), { ssr: false });
 
@@ -65,14 +66,11 @@ export default function PodCapturePage() {
     return (
       <div className="max-w-sm mx-auto -mt-6 -mx-6 min-h-screen flex flex-col bg-gray-50 sm:mx-auto">
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-[#0B1C2E] h-14 px-4 flex items-center justify-between shrink-0">
+        <header className="sticky top-0 z-30 h-14 px-4 flex items-center justify-between shrink-0" style={{ background: "linear-gradient(135deg, #D31A21 0%, #6A0B0B 100%)" }}>
           <button onClick={() => router.back()} className="w-9 h-9 flex items-center justify-center" aria-label="Back">
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
-          <div className="text-center leading-none">
-            <p className="text-white font-extrabold text-sm tracking-tight">NE<span className="text-teal-400">X</span></p>
-            <p className="text-[8px] tracking-[0.25em] text-teal-400/80 font-semibold">LOGISTICS</p>
-          </div>
+          <Logo size={30} showWordmark={false} light />
           <div className="w-9" />
         </header>
 

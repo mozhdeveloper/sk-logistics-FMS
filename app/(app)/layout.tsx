@@ -43,7 +43,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   // Driver mobile app — full-screen, no sidebar or topbar
-  if (pathname?.startsWith("/driver")) {
+  if (pathname?.startsWith("/driver") || (user.role === "driver" && pathname?.startsWith("/pod"))) {
     return <>{children}</>;
   }
 

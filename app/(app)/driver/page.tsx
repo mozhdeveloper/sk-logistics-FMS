@@ -1,17 +1,19 @@
-"use client";
-import { useState } from "react";
+﻿"use client";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/auth";
 import { useTripStore, useFleetStore, useDriverStore, useClientStore, useUiStore } from "@/lib/store";
 import {
   Bell, ChevronLeft, ChevronRight, LayoutGrid, ClipboardList, Camera,
-  MoreHorizontal, Truck, Package, Navigation2, Clock3, CheckCircle2,
-  MessageSquare, Wallet, Megaphone, Fuel, X, MapPin, PhoneCall,
-  AlertTriangle, Star, TrendingUp,
+  Truck, Package, Navigation2, Clock3, CheckCircle2,
+  MessageSquare, Wallet, Megaphone, Fuel, X, MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { TripStatus, Trip } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { DriverNav } from "@/components/driver/DriverNav";
+import type { DriverTab } from "@/components/driver/DriverNav";
+import { DriverSidebar } from "@/components/driver/DriverSidebar";
 import { Logo } from "@/components/Brand/Logo";
 
 // â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -54,7 +56,6 @@ const SHEET_STATUSES: { value: TripStatus; label: string }[] = [
 ];
 
 type View = "dashboard" | "trip_details" | "trips_list";
-type Tab  = "dashboard" | "trips" | "pod" | "more";
 
 // â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function DriverPage() {
@@ -69,10 +70,18 @@ export default function DriverPage() {
 
   const [view,          setView]         = useState<View>("dashboard");
   const [selectedTrip,  setSelectedTrip] = useState<Trip | null>(null);
-  const [activeTab,     setActiveTab]    = useState<Tab>("dashboard");
+  const [activeTab,     setActiveTab]    = useState<DriverTab>("dashboard");
+  const [sidebarOpen,   setSidebarOpen]  = useState(false);
   const [showSheet,     setShowSheet]    = useState(false);
   const [sheetStatus,   setSheetStatus]  = useState<TripStatus>("in_transit");
   const [sheetNote,     setSheetNote]    = useState("");
+
+  // Read ?view= query param to deep-link into trips list from other pages
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get("view");
+    if (v === "trips") { setView("trips_list"); setActiveTab("trips"); }
+  }, []);
 
   // Resolve driver â€” fall back to first driver (Mark Santos) for demo
   const driverId = user?.driverId ?? drivers[0]?.id;
@@ -108,12 +117,12 @@ export default function DriverPage() {
     setSheetNote("");
   }
 
-  function handleTab(tab: Tab) {
+  function handleTab(tab: DriverTab) {
+    if (tab === "pod")      { router.push("/pod"); return; }
+    if (tab === "settings") { router.push("/driver/settings"); return; }
     setActiveTab(tab);
-    if (tab === "dashboard") { setView("dashboard"); return; }
-    if (tab === "trips")     { setView("trips_list"); return; }
-    if (tab === "pod")       { router.push("/pod"); return; }
-    toast.info("Coming soon");
+    if (tab === "dashboard") { setView("dashboard"); }
+    if (tab === "trips")     { setView("trips_list"); }
   }
 
   // â”€â”€â”€ Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -121,7 +130,7 @@ export default function DriverPage() {
     return (
       <div className="space-y-5 pb-24">
         {/* Profile banner */}
-        <div className="-mx-4 -mt-4 px-5 pt-6 pb-6 bg-brand-navy">
+        <div className="-mx-4 -mt-4 px-5 pt-6 pb-6" style={{ background: "linear-gradient(135deg, #D31A21 0%, #6A0B0B 100%)" }}>
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-brand-gradient flex items-center justify-center text-white text-xl font-bold shrink-0 select-none">
               {fullName.charAt(0)}
@@ -205,7 +214,7 @@ export default function DriverPage() {
               </div>
               <div className="px-4 pb-2 flex justify-between text-xs text-gray-400 border-t border-gray-50 pt-2">
                 <span>Trip ID: <span className="font-semibold text-brand-navy">{activeTrip.id}</span></span>
-                <span>Vehicle: <span className="font-semibold text-brand-navy">{vehicle?.plate ?? "NEX-101"}</span></span>
+                <span>Vehicle: <span className="font-semibold text-brand-navy">{vehicle?.plate ?? "SKL-101"}</span></span>
               </div>
               <div className="px-4 pb-4 pt-2">
                 <button
@@ -562,12 +571,12 @@ export default function DriverPage() {
 
       {/* â”€â”€ Sticky header â”€â”€ */}
       <header
-        className="sticky top-0 z-30 bg-brand-navy w-full shrink-0"
-        style={{ paddingTop: "env(safe-area-inset-top)" }}
+        className="sticky top-0 z-30 w-full shrink-0"
+        style={{ background: "linear-gradient(135deg, #D31A21 0%, #6A0B0B 100%)", paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="max-w-lg mx-auto h-14 px-4 flex items-center justify-between">
           <button
-            onClick={() => toast.info("Menu")}
+            onClick={() => setSidebarOpen(true)}
             className="min-w-[44px] min-h-[44px] flex flex-col justify-center items-start gap-1.5 p-2 -ml-2"
             aria-label="Menu"
           >
@@ -576,7 +585,7 @@ export default function DriverPage() {
             <span className="block w-3.5 h-0.5 bg-white rounded" />
           </button>
 
-          <Logo size={28} light showWordmark={false} />
+          <Logo size={32} showWordmark={false} light />
 
           <button
             onClick={() => toast.info("Notifications")}
@@ -619,33 +628,13 @@ export default function DriverPage() {
         </div>
       </main>
 
-      {/* â”€â”€ Bottom nav â”€â”€ */}
-      <nav
-        className="sticky bottom-0 z-30 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)] shrink-0"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      >
-        <div className="max-w-lg mx-auto h-16 flex items-center">
-          {([
-            { id: "dashboard", label: "Dashboard", icon: LayoutGrid },
-            { id: "trips",     label: "Trips",     icon: ClipboardList },
-            { id: "pod",       label: "POD",        icon: Camera },
-            { id: "more",      label: "More",       icon: MoreHorizontal },
-          ] as const).map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => handleTab(id)}
-              className={cn(
-                "flex-1 flex flex-col items-center justify-center gap-1 h-full min-h-[44px] transition-colors",
-                activeTab === id ? "text-brand-teal" : "text-gray-400"
-              )}
-              aria-label={label}
-            >
-              <Icon className={cn("w-5 h-5 transition-transform", activeTab === id && "scale-110")} />
-              <span className="text-[10px] font-medium">{label}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
+      <DriverNav active={activeTab} />
+
+      <DriverSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        active={activeTab}
+      />
 
       {/* â”€â”€ Update Status Bottom Sheet â”€â”€ */}
       {showSheet && activeTrip && (

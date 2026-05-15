@@ -14,6 +14,7 @@ import {
 } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Logo } from "@/components/Brand/Logo";
 
 const STATUS_VARIANT: Record<string, any> = {
   draft: "neutral", computing: "info", ready_for_review: "warning",
@@ -70,17 +71,18 @@ export default function DriverEarningsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Sticky Navy Header */}
-      <header className="sticky top-0 z-30 bg-[#0B1C2E] text-white shadow-md">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-30 text-white shadow-md" style={{ background: "linear-gradient(135deg, #D31A21 0%, #6A0B0B 100%)" }}>
         <div className="px-4 py-3 flex items-center gap-3">
           <Link href="/driver" className="p-1.5 -ml-1.5 hover:bg-white/10 rounded-lg">
             <ChevronLeft className="w-5 h-5" />
           </Link>
+          <Logo size={28} showWordmark={false} light />
           <div className="flex-1">
             <div className="text-xs text-white/60 uppercase tracking-wider">My Earnings</div>
             <div className="font-bold text-base">{driver?.name ?? "Driver"}</div>
           </div>
-          <div className="w-9 h-9 rounded-full bg-brand-teal flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
             <Wallet className="w-5 h-5" />
           </div>
         </div>
@@ -99,7 +101,7 @@ export default function DriverEarningsPage() {
           <>
             {/* Hero: Active Period Estimate */}
             {activePeriod && livePreview && (
-              <div className="bg-gradient-to-br from-brand-teal to-emerald-600 text-white rounded-2xl p-5 shadow-lg">
+              <div className="text-white rounded-2xl p-5 shadow-lg" style={{ background: "linear-gradient(135deg, #D31A21 0%, #6A0B0B 100%)" }}>
                 <div className="flex items-center justify-between mb-1">
                   <div className="text-xs uppercase tracking-wider text-white/80">Current Period · Estimate</div>
                   <Badge variant="neutral" className="bg-white/20 text-white border-0">{activePeriod.status.replace("_", " ")}</Badge>
