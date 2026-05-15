@@ -13,7 +13,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { useClientStore, useInvoiceStore, useBillingPaymentStore } from "@/lib/store";
 import { formatCurrency, initials } from "@/lib/utils";
-import { toast } from "sonner";
+import { AddCustomerModal } from "@/components/billing/AddCustomerModal";
 
 export default function BillingCustomersPage() {
   const clients = useClientStore((s) => s.clients);
@@ -21,6 +21,7 @@ export default function BillingCustomersPage() {
   const payments = useBillingPaymentStore((s) => s.payments);
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   const customerData = useMemo(() => {
     return clients.map((c) => {
@@ -51,11 +52,12 @@ export default function BillingCustomersPage() {
 
   return (
     <div className="space-y-6">
+      <AddCustomerModal open={addModalOpen} onOpenChange={setAddModalOpen} />
       <PageHeader
         title="Customers"
         subtitle="Manage billing customers and accounts receivable."
         breadcrumbs={[{ label: "Finance" }, { label: "Billing & Invoices", href: "/billing" }, { label: "Customers" }]}
-        actions={<Button size="sm" onClick={() => toast.info("Add customer — coming soon")}><Plus className="w-4 h-4" /> Add Customer</Button>}
+        actions={<Button size="sm" onClick={() => setAddModalOpen(true)}><Plus className="w-4 h-4" /> Add Customer</Button>}
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

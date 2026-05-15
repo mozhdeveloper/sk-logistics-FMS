@@ -4,7 +4,7 @@ import {
   FileText, CheckCircle2, Hourglass, AlertCircle, Calendar,
   Search, Plus, Download, MoreVertical, X, Eye,
   MapPin, Phone, Mail, ChevronDown, Filter, SlidersHorizontal,
-  FileCheck2, CreditCard
+  FileCheck2, CreditCard, Send
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,7 @@ const TAB_FILTERS: Array<{ key: InvoiceStatus | "all"; label: string }> = [
 
 export default function InvoicesPage() {
   const invoices = useInvoiceStore((s) => s.invoices);
+  const updateInvoice = useInvoiceStore((s) => s.updateInvoice);
   const clients = useClientStore((s) => s.clients);
   const [tab, setTab] = useState<InvoiceStatus | "all">("all");
   const [search, setSearch] = useState("");
@@ -270,6 +271,16 @@ export default function InvoicesPage() {
 
               {/* Actions */}
               <div className="pt-2 space-y-3">
+                {selected.status === "draft" && (
+                  <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-sm h-10 font-semibold text-xs flex items-center justify-center gap-2"
+                    onClick={() => {
+                      updateInvoice(selected.id, { status: "sent" });
+                      toast.success(`Invoice ${selected.invoiceNumber} marked as sent.`);
+                    }}>
+                    <Send className="w-4 h-4" /> Send Invoice
+                  </Button>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <Button variant="outline" className="text-xs h-9 font-semibold text-gray-700 border-gray-200 shadow-sm" onClick={() => toast.success("Viewing invoice...")}>
                     <Eye className="w-3.5 h-3.5 mr-2" /> View Invoice

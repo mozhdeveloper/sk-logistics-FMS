@@ -24,6 +24,9 @@ export default function AllDocumentsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [menuId, setMenuId] = useState<string | null>(null);
 
+  // Preview modal state
+  const [previewDoc, setPreviewDoc] = useState<DocumentItem | null>(null);
+
   // Delete modal state
   const [deleteTarget, setDeleteTarget] = useState<DocumentItem | null>(null);
 
@@ -237,7 +240,7 @@ export default function AllDocumentsPage() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="p-4 flex gap-2 border-b border-gray-100 bg-gray-50/50">
-                <Button variant="outline" className="flex-1 h-9 text-xs font-semibold bg-white" onClick={() => toast.info("Preview not available in MVP")}>
+                <Button variant="outline" className="flex-1 h-9 text-xs font-semibold bg-white" onClick={() => setPreviewDoc(selected)}>
                   <Eye className="w-3.5 h-3.5 mr-2" /> Preview
                 </Button>
                 <Button variant="outline" className="flex-1 h-9 text-xs font-semibold bg-white" onClick={() => toast.success("Download started")}>
@@ -295,6 +298,55 @@ export default function AllDocumentsPage() {
           </Card>
         )}
       </div>
+
+      {/* ── Document Preview Modal ── */}
+      {previewDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setPreviewDoc(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-md flex items-center justify-center text-xs font-bold text-white shrink-0 ${previewDoc.type === "PDF" ? "bg-red-500" : previewDoc.type === "DOCX" ? "bg-blue-500" : previewDoc.type === "XLSX" ? "bg-green-500" : previewDoc.type === "ZIP" ? "bg-purple-500" : "bg-amber-500"}`}>
+                  {previewDoc.type}
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">{previewDoc.name}</h3>
+                  <p className="text-[11px] text-gray-500">{previewDoc.category} · {previewDoc.sizeMB} MB · v{previewDoc.version}</p>
+                </div>
+              </div>
+              <button className="text-gray-400 hover:text-gray-600 p-1" onClick={() => setPreviewDoc(null)}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            {/* Simulated document preview area */}
+            <div className="bg-gray-50 border-b border-gray-100 p-8 flex flex-col items-center justify-center min-h-[260px]">
+              <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-black text-white mb-4 shadow-lg ${previewDoc.type === "PDF" ? "bg-red-500" : previewDoc.type === "DOCX" ? "bg-blue-500" : previewDoc.type === "XLSX" ? "bg-green-500" : previewDoc.type === "ZIP" ? "bg-purple-500" : "bg-amber-500"}`}>
+                {previewDoc.type}
+              </div>
+              <p className="text-sm font-semibold text-gray-700 mb-1">{previewDoc.name}</p>
+              <p className="text-xs text-gray-400 mb-4">{previewDoc.description}</p>
+              <div className="flex flex-wrap gap-1.5 justify-center">
+                {previewDoc.tags.map((tag, i) => (
+                  <span key={i} className="px-2 py-0.5 bg-white border border-gray-200 text-gray-600 rounded text-[10px] font-medium">{tag}</span>
+                ))}
+              </div>
+            </div>
+            <div className="p-4 flex items-center justify-between bg-white">
+              <div className="text-xs text-gray-500">
+                Access: <span className="font-semibold capitalize text-gray-700">{previewDoc.accessLevel}</span>
+                {previewDoc.expiryDate && <> · Expires: <span className="font-semibold text-gray-700">{new Date(previewDoc.expiryDate).toLocaleDateString()}</span></>}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" className="h-8 px-3 text-xs font-semibold" onClick={() => { openShare(previewDoc); setPreviewDoc(null); }}>
+                  <Share2 className="w-3.5 h-3.5 mr-1.5" /> Share
+                </Button>
+                <Button className="h-8 px-3 text-xs font-semibold" onClick={() => { toast.success("Download started"); setPreviewDoc(null); }}>
+                  <Download className="w-3.5 h-3.5 mr-1.5" /> Download
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Delete Confirmation Modal ── */}
       {deleteTarget && (

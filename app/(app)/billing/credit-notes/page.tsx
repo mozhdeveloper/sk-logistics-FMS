@@ -12,6 +12,7 @@ import { useCreditNoteStore, useClientStore, useInvoiceStore } from "@/lib/store
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import type { CreditNoteStatus } from "@/lib/types";
+import { CreateCreditNoteModal } from "@/components/billing/CreateCreditNoteModal";
 
 export default function CreditNotesPage() {
   const creditNotes = useCreditNoteStore((s) => s.creditNotes);
@@ -20,6 +21,7 @@ export default function CreditNotesPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<CreditNoteStatus | "all">("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const clientMap = useMemo(() => {
     const m: Record<string, string> = {};
@@ -54,6 +56,7 @@ export default function CreditNotesPage() {
 
   return (
     <div className="space-y-6">
+      <CreateCreditNoteModal open={createModalOpen} onOpenChange={setCreateModalOpen} />
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-[#0B1220] tracking-tight">Credit Notes</h1>
@@ -68,7 +71,7 @@ export default function CreditNotesPage() {
               <Filter className="w-4 h-4 mr-2 text-gray-500" /> Filters
             </Button>
           </div>
-          <Button onClick={() => toast.info("Create credit note — coming soon")} className="bg-[#008A56] hover:bg-[#007045] text-white shadow-sm h-9 px-3 text-xs font-semibold">
+          <Button onClick={() => setCreateModalOpen(true)} className="bg-[#008A56] hover:bg-[#007045] text-white shadow-sm h-9 px-3 text-xs font-semibold">
             <Plus className="w-4 h-4 mr-1.5" /> New Credit Note <ChevronDown className="w-3.5 h-3.5 ml-2" />
           </Button>
         </div>

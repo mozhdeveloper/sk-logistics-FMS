@@ -83,6 +83,16 @@ export default function ApprovalsPage() {
         title="Trip Rate Approvals"
         subtitle="Confirm in-house, subcon, employee commission, and driver/helper salary rates"
         breadcrumbs={[{ label: "Operations" }, { label: "Approvals" }]}
+        actions={
+          pending.length > 1 ? (
+            <Button size="sm" onClick={() => {
+              pending.forEach((t) => approveRates(t.id, user?.name || "Super Admin"));
+              toast.success(`All ${pending.length} pending trips approved.`);
+            }}>
+              <CheckCircle2 className="w-4 h-4" /> Approve All ({pending.length})
+            </Button>
+          ) : undefined
+        }
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">

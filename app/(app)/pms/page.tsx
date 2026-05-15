@@ -6,20 +6,52 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { useMaintenanceStore, useFleetStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { toast } from "sonner";
+import type { MaintenanceStatus } from "@/lib/types";
 
 const STATUS_VARIANT: Record<string, any> = { overdue: "danger", due_soon: "warning", upcoming: "info", completed: "success" };
 
 export default function PmsPage() {
   const records = useMaintenanceStore((s) => s.records);
   const updateRecord = useMaintenanceStore((s) => s.updateRecord);
+  const addRecord = useMaintenanceStore((s) => s.addRecord);
   const vehicles = useFleetStore((s) => s.vehicles);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [addModalOpen, setAddModalOpen] = useState(false);
+
+  // Add Schedule form state
+  const [schedVehicleId, setSchedVehicleId] = useState(vehicles[0]?.id || "");
+  const [schedType, setSchedType] = useState("");
+  const [schedDueDate, setSchedDueDate] = useState(new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0]);
+  const [schedOdometer, setSchedOdometer] = useState("");
+  const [schedCost, setSchedCost] = useState("");
+  const [schedNotes, setSchedNotes] = useState("");
+
+  const SERVICE_TYPES = ["Oil Change", "Tire Replacement", "Battery Check", "Brake Service", "Air Filter", "Transmission Service", "Engine Tune-Up", "Coolant Flush", "Belt Replacement", "PMS Inspection"];
+
+  const handleAddSchedule = () => {
+    if (!schedVehicleId) return toast.error("Select a vehicle.");
+    if (!schedType.trim()) return toast.error("Service type is required.");
+    if (!schedDueDate) return toast.error("Due date is required.");
+    addRecord({
+      vehicleId: schedVehicleId,
+      type: schedType,
+      dueDate: schedDueDate,
+      dueOdometer: schedOdometer ? parseInt(schedOdometer) : undefined,
+      cost: schedCost ? parseFloat(schedCost) : undefined,
+      status: "upcoming" as MaintenanceStatus,
+      notes: schedNotes || undefined,
+    });
+    toast.success("Maintenance schedule added.");
+    setSchedType(""); setSchedOdometer(""); setSchedCost(""); setSchedNotes("");
+    setAddModalOpen(false);
+  };
 
   const filtered = useMemo(() => records.filter((r) => {
     if (statusFilter !== "all" && r.status !== statusFilter) return false;
@@ -44,11 +76,57 @@ export default function PmsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Add Schedule Dialog */}
+      <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Maintenance Schedule</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-xs font-semibold text-gray-600">Vehicle</label>
+              <select value={schedVehicleId} onChange={(e) => setSchedVehicleId(e.target.value)}
+                className="w-full h-9 px-3 rounded-md border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red">
+                {vehicles.map((v) => <option key={v.id} value={v.id}>{v.plate} — {v.brand} {v.model}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-xs font-semibold text-gray-600">Service Type</label>
+              <select value={schedType} onChange={(e) => setSchedType(e.target.value)}
+                className="w-full h-9 px-3 rounded-md border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red">
+                <option value="">— Select service —</option>
+                {SERVICE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-600">Due Date</label>
+              <Input type="date" value={schedDueDate} onChange={(e) => setSchedDueDate(e.target.value)} className="h-9" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-600">Due Odometer (km) <span className="font-normal text-gray-400">(optional)</span></label>
+              <Input type="number" min="0" value={schedOdometer} onChange={(e) => setSchedOdometer(e.target.value)} placeholder="e.g. 150000" className="h-9" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-600">Estimated Cost (₱) <span className="font-normal text-gray-400">(optional)</span></label>
+              <Input type="number" min="0" step="0.01" value={schedCost} onChange={(e) => setSchedCost(e.target.value)} placeholder="0.00" className="h-9" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-600">Notes <span className="font-normal text-gray-400">(optional)</span></label>
+              <Input value={schedNotes} onChange={(e) => setSchedNotes(e.target.value)} placeholder="Additional notes..." className="h-9" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddSchedule}>Add Schedule</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <PageHeader
         title="Preventive Maintenance"
         subtitle="Track service schedules, repairs, and overdue alerts"
         breadcrumbs={[{ label: "Operations" }, { label: "PMS" }]}
-        actions={<Button size="sm"><Plus className="w-4 h-4" /> Add Schedule</Button>}
+        actions={<Button size="sm" onClick={() => setAddModalOpen(true)}><Plus className="w-4 h-4" /> Add Schedule</Button>}
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4">

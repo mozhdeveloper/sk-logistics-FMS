@@ -1,9 +1,11 @@
 "use client";
 import { useMemo, useState } from "react";
-import { CalendarClock, UserCheck, UserX, Clock, Calendar, ChevronLeft, ChevronRight as ChevRight } from "lucide-react";
+import { CalendarClock, UserCheck, UserX, Clock, Calendar, ChevronLeft, ChevronRight as ChevRight, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { useDriverStore } from "@/lib/store";
@@ -42,8 +44,29 @@ export default function AttendancePage() {
   const drivers = useDriverStore((s) => s.drivers);
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
   const [month, setMonth] = useState(4); // May (0-indexed)
+  const [clockModalOpen, setClockModalOpen] = useState(false);
 
-  const attendance = useMemo(() => seedAttendance(drivers), [drivers]);
+  // Manual attendance override state
+  const [overrides, setOverrides] = useState<Record<string, { clockIn: string; clockOut: string; status: AttStatus }>>({});
+  const [recordDriverId, setRecordDriverId] = useState(drivers[0]?.id || "");
+  const [recordStatus, setRecordStatus] = useState<AttStatus>("present");
+  const [recordClockIn, setRecordClockIn] = useState("08:00");
+  const [recordClockOut, setRecordClockOut] = useState("17:00");
+
+  const baseAttendance = useMemo(() => seedAttendance(drivers), [drivers]);
+  const attendance = useMemo(() => baseAttendance.map((a) => {
+    const o = overrides[a.driverId];
+    if (!o) return a;
+    return { ...a, today: o.status, clockIn: o.clockIn, clockOut: o.clockOut };
+  }), [baseAttendance, overrides]);
+
+  const handleRecordAttendance = () => {
+    if (!recordDriverId) return toast.error("Select a driver.");
+    setOverrides((prev) => ({ ...prev, [recordDriverId]: { status: recordStatus, clockIn: recordClockIn, clockOut: recordClockOut } }));
+    const driver = drivers.find((d) => d.id === recordDriverId);
+    toast.success(`Attendance recorded for ${driver?.name ?? "driver"}.`);
+    setClockModalOpen(false);
+  };
 
   const totalPresent = attendance.filter((a) => a.today === "present").length;
   const totalAbsent = attendance.filter((a) => a.today === "absent").length;
@@ -59,14 +82,60 @@ export default function AttendancePage() {
 
   return (
     <div className="space-y-6">
+      {/* Record Attendance Dialog */}
+      <Dialog open={clockModalOpen} onOpenChange={setClockModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Record Attendance</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-xs font-semibold text-gray-600">Driver</label>
+              <select value={recordDriverId} onChange={(e) => setRecordDriverId(e.target.value)}
+                className="w-full h-9 px-3 rounded-md border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red">
+                {drivers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-xs font-semibold text-gray-600">Status</label>
+              <select value={recordStatus} onChange={(e) => setRecordStatus(e.target.value as AttStatus)}
+                className="w-full h-9 px-3 rounded-md border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red">
+                <option value="present">Present</option>
+                <option value="late">Late</option>
+                <option value="absent">Absent</option>
+                <option value="on_leave">On Leave</option>
+                <option value="off_duty">Off Duty</option>
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-600">Clock In</label>
+              <Input type="time" value={recordClockIn} onChange={(e) => setRecordClockIn(e.target.value)} className="h-9" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-600">Clock Out</label>
+              <Input type="time" value={recordClockOut} onChange={(e) => setRecordClockOut(e.target.value)} className="h-9" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setClockModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleRecordAttendance}>Save Attendance</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <PageHeader
         title="Attendance & Time Tracking"
         subtitle="Monitor daily driver attendance, clock-in/out times, and leave records"
         breadcrumbs={[{ label: "Finance & HR" }, { label: "Attendance" }]}
         actions={
-          <Button size="sm" variant="outline" onClick={() => toast.success("Attendance report exported")}>
-            <Calendar className="w-4 h-4" /> Export Report
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={() => setClockModalOpen(true)}>
+              <Plus className="w-4 h-4" /> Record Attendance
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => toast.success("Attendance report exported")}>
+              <Calendar className="w-4 h-4" /> Export Report
+            </Button>
+          </div>
         }
       />
 
