@@ -110,7 +110,7 @@ export function AddDriverSheet({ open, onOpenChange, editDriver }: Props) {
         </SheetHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-6">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Full Name" error={errors.name?.message}>
               <Input placeholder="Juan Dela Cruz" {...register("name")} />
             </Field>
@@ -126,7 +126,7 @@ export function AddDriverSheet({ open, onOpenChange, editDriver }: Props) {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Email" error={errors.email?.message}>
               <Input type="email" placeholder="juan@nexlogistics.demo" {...register("email")} />
             </Field>
@@ -135,7 +135,7 @@ export function AddDriverSheet({ open, onOpenChange, editDriver }: Props) {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="License Number" error={errors.licenseNumber?.message}>
               <Input placeholder="N01-25-123456" {...register("licenseNumber")} />
             </Field>
@@ -144,7 +144,7 @@ export function AddDriverSheet({ open, onOpenChange, editDriver }: Props) {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="License Expiry" error={errors.licenseExpiry?.message}>
               <Input type="date" {...register("licenseExpiry")} />
             </Field>

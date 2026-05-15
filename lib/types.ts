@@ -225,6 +225,22 @@ export interface Partner {
   notes?: string;
 }
 
+export type PartnerRequestType = "diesel" | "cash_advance" | "other";
+export type PartnerRequestStatus = "pending" | "approved" | "rejected" | "released";
+
+export interface PartnerRequest {
+  id: string;
+  partnerId: string;
+  type: PartnerRequestType;
+  amount: number;
+  reason?: string;
+  requestedAt: string;
+  status: PartnerRequestStatus;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  releaseReference?: string;
+}
+
 export type MaintenanceStatus = "upcoming" | "due_soon" | "overdue" | "completed";
 
 export interface MaintenanceRecord {

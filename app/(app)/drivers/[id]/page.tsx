@@ -73,7 +73,7 @@ export default function DriverDetailPage() {
         subtitle={`${driver.licenseClass} · License ${driver.licenseNumber}`}
         breadcrumbs={[{ label: "Operations" }, { label: "Drivers", href: "/drivers" }, { label: driver.name }]}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" onClick={() => router.push("/drivers")}>
               <ArrowLeft className="w-4 h-4" /> Back
             </Button>
@@ -98,7 +98,7 @@ export default function DriverDetailPage() {
       {/* Profile Hero */}
       <Card className="border-brand-border bg-white shadow-sm">
         <CardContent className="p-6">
-          <div className="flex items-start gap-6">
+          <div className="flex flex-col sm:flex-row items-start gap-6">
             <div className="w-20 h-20 rounded-2xl bg-brand-navy text-white font-extrabold text-2xl flex items-center justify-center shrink-0">
               {driver.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
             </div>
@@ -169,7 +169,7 @@ export default function DriverDetailPage() {
           </CardHeader>
           <CardContent className="pt-4">
             {vehicle ? (
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <div className="w-14 h-14 rounded-xl bg-brand-teal-light flex items-center justify-center shrink-0">
                   <Truck className="w-7 h-7 text-brand-teal" />
                 </div>
@@ -199,7 +199,7 @@ export default function DriverDetailPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="trips">
-        <TabsList>
+        <TabsList className="w-full justify-start overflow-x-auto whitespace-nowrap">
           <TabsTrigger value="trips">Trip History ({driverTrips.length})</TabsTrigger>
           <TabsTrigger value="payroll">Payroll Summary</TabsTrigger>
           <TabsTrigger value="payroll_settings">Payroll Settings</TabsTrigger>
@@ -209,7 +209,8 @@ export default function DriverDetailPage() {
         <TabsContent value="trips">
           <Card>
             <CardContent className="p-0">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-[740px] text-sm">
                 <thead>
                   <tr className="text-left text-xs uppercase text-muted-foreground border-b border-brand-border bg-gray-50">
                     <th className="py-3 px-4">Trip ID</th>
@@ -249,6 +250,7 @@ export default function DriverDetailPage() {
                   {driverTrips.length === 0 && <tr><td colSpan={5} className="py-8 text-center text-muted-foreground">No trip history.</td></tr>}
                 </tbody>
               </table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -262,7 +264,8 @@ export default function DriverDetailPage() {
                     <div className="text-sm text-muted-foreground">Total Earned (Paid)</div>
                     <div className="text-2xl font-extrabold text-brand-navy">{formatCurrency(totalEarned)}</div>
                   </div>
-                  <table className="w-full text-sm">
+                  <div className="overflow-x-auto">
+                  <table className="w-full min-w-[920px] text-sm">
                     <thead>
                       <tr className="text-left text-xs uppercase text-muted-foreground border-b border-brand-border bg-gray-50">
                         <th className="py-3 px-4">Period</th>
@@ -298,6 +301,7 @@ export default function DriverDetailPage() {
                       })}
                     </tbody>
                   </table>
+                  </div>
                 </>
               ) : (
                 <div className="py-10 text-center text-muted-foreground">
