@@ -43,22 +43,30 @@ export default function PodListPage() {
       <Card>
         <CardContent className="p-4">
           <h3 className="font-bold text-brand-navy mb-3">Awaiting POD ({needsPod.length})</h3>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {needsPod.map((t) => {
               const d = drivers.find((x) => x.id === t.driverId);
               return (
-                <div key={t.id} className="flex items-center gap-3 p-3 rounded-lg border border-brand-border">
-                  <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center"><ClipboardCheck className="w-4 h-4 text-amber-600" /></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-brand-navy">{t.id} <span className="text-xs text-muted-foreground font-normal">· {d?.name}</span></div>
-                    <div className="text-xs text-muted-foreground truncate">{t.pickup.address} → {t.dropoff.address}</div>
+                <div key={t.id} className="flex items-center gap-3 p-4 rounded-xl border border-brand-border hover:border-brand-teal/40 hover:bg-brand-red-light/20 transition-colors">
+                  <div className="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+                    <Camera className="w-5 h-5 text-amber-600" />
                   </div>
-                  <Badge variant="warning">Pending</Badge>
-                  <Button size="sm" asChild><Link href={`/pod/${t.id}`}>Capture</Link></Button>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-sm text-brand-navy">{t.id} <span className="text-xs text-muted-foreground font-normal">&middot; {d?.name ?? "Unassigned"}</span></div>
+                    <div className="text-xs text-muted-foreground truncate mt-0.5">{t.pickup.address} &rarr; {t.dropoff.address}</div>
+                    <span className="mt-1.5 inline-block text-[10px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold">Awaiting Capture</span>
+                  </div>
+                  <Button size="sm" asChild className="shrink-0"><Link href={`/pod/${t.id}`}>Capture</Link></Button>
                 </div>
               );
             })}
-            {needsPod.length === 0 && <div className="text-center py-8 text-muted-foreground">No deliveries awaiting POD.</div>}
+            {needsPod.length === 0 && (
+              <div className="text-center py-10 text-muted-foreground flex flex-col items-center gap-2">
+                <CheckCircle2 className="w-8 h-8 text-emerald-400 opacity-60" />
+                <p className="font-semibold text-sm">All caught up</p>
+                <p className="text-xs">No deliveries awaiting POD.</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -66,18 +74,20 @@ export default function PodListPage() {
       <Card>
         <CardContent className="p-4">
           <h3 className="font-bold text-brand-navy mb-3">Captured ({captured.length})</h3>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {captured.map((t) => {
               const pod = pods.find((p) => p.tripId === t.id)!;
               return (
-                <div key={t.id} className="flex items-center gap-3 p-3 rounded-lg border border-brand-border bg-emerald-50/30">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center"><ClipboardCheck className="w-4 h-4 text-emerald-600" /></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-brand-navy">{t.id} <span className="text-xs text-muted-foreground font-normal">· {pod.receiverName}</span></div>
-                    <div className="text-xs text-muted-foreground">{new Date(pod.timestamp).toLocaleString()}</div>
+                <div key={t.id} className="flex items-center gap-3 p-4 rounded-xl border border-brand-border bg-emerald-50/30">
+                  <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                    <ClipboardCheck className="w-5 h-5 text-emerald-600" />
                   </div>
-                  <Badge variant="success">Done</Badge>
-                  <Button size="sm" variant="outline" asChild><Link href={`/trips/${t.id}`}>View</Link></Button>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-sm text-brand-navy">{t.id} <span className="text-xs text-muted-foreground font-normal">&middot; {pod.receiverName}</span></div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{new Date(pod.timestamp).toLocaleString()}</div>
+                    <span className="mt-1.5 inline-block text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">Captured</span>
+                  </div>
+                  <Button size="sm" variant="outline" asChild className="shrink-0"><Link href={`/trips/${t.id}`}>View</Link></Button>
                 </div>
               );
             })}

@@ -64,20 +64,27 @@ export default function PodCapturePage() {
   // â”€â”€ Driver mobile view â”€â”€
   if (user?.role === "driver") {
     return (
-      <div className="max-w-sm mx-auto -mt-6 -mx-6 min-h-screen flex flex-col bg-gray-50 sm:mx-auto">
+      <div className="max-w-sm mx-auto -mt-6 -mx-6 min-h-[100dvh] flex flex-col bg-gray-50 sm:mx-auto overscroll-none">
         {/* Header */}
         <header className="sticky top-0 z-30 h-14 px-4 flex items-center justify-between shrink-0" style={{ background: "linear-gradient(135deg, #D31A21 0%, #6A0B0B 100%)" }}>
-          <button onClick={() => router.back()} className="w-9 h-9 flex items-center justify-center" aria-label="Back">
+          <button onClick={() => router.back()} className="min-w-[44px] min-h-[44px] flex items-center justify-center -ml-2" aria-label="Back">
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
           <Logo size={30} showWordmark={false} light />
           <div className="w-9" />
         </header>
 
-        {/* Title */}
-        <div className="bg-[#0B1C2E] px-5 pb-5 pt-1">
-          <p className="text-white font-bold text-lg">Capture POD</p>
-          <p className="text-xs text-white/50 mt-0.5">{trip.id} Â· {trip.dropoff.address.split(",")[0]}</p>
+        {/* Title banner — red gradient, matches driver POD list */}
+        <div className="px-5 pb-5 pt-1 shrink-0" style={{ background: "linear-gradient(135deg, #D31A21 0%, #6A0B0B 100%)" }}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <FileText className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-white font-bold text-lg leading-tight">Capture POD</p>
+              <p className="text-xs text-white/50 mt-0.5">{trip.id} &middot; {trip.dropoff.address.split(",")[0]}</p>
+            </div>
+          </div>
         </div>
 
         {/* Form */}
@@ -94,7 +101,7 @@ export default function PodCapturePage() {
                 value={receiverName}
                 onChange={(e) => setReceiverName(e.target.value)}
                 placeholder="Juan Dela Cruz"
-                className="w-full h-12 rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 text-gray-700"
+                className="w-full h-12 rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/40 text-gray-700"
               />
             </div>
             <div>
@@ -105,7 +112,7 @@ export default function PodCapturePage() {
                 value={receiverContact}
                 onChange={(e) => setReceiverContact(e.target.value)}
                 placeholder="+63 917..."
-                className="w-full h-12 rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 text-gray-700"
+                className="w-full h-12 rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/40 text-gray-700"
               />
             </div>
             <div>
@@ -117,7 +124,7 @@ export default function PodCapturePage() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
                 placeholder="Condition of cargo, remarks..."
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 text-gray-700 resize-none"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/40 text-gray-700 resize-none"
               />
             </div>
           </div>
@@ -127,10 +134,10 @@ export default function PodCapturePage() {
             <h3 className="font-bold text-sm text-[#0B1C2E] mb-3">Delivery Photos</h3>
             <label className="cursor-pointer block">
               <input type="file" multiple accept="image/*" capture="environment" className="hidden" onChange={handlePhotoUpload} />
-              <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-teal-400 hover:bg-teal-50/30 transition-colors active:scale-[0.99]">
-                <Camera className="w-8 h-8 text-teal-500 mx-auto mb-2" />
-                <p className="font-semibold text-sm text-[#0B1C2E]">Tap to take / upload photos</p>
-                <p className="text-xs text-gray-400 mt-0.5">JPG, PNG Â· Multiple allowed</p>
+              <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-brand-teal/40 hover:bg-brand-red-light/40 transition-colors active:scale-[0.99]">
+                <Camera className="w-8 h-8 text-brand-teal mx-auto mb-2" />
+                <p className="font-semibold text-sm text-brand-navy">Tap to take / upload photos</p>
+                <p className="text-xs text-gray-400 mt-0.5">JPG, PNG &middot; Multiple allowed</p>
               </div>
             </label>
             {photos.length > 0 && (
@@ -170,7 +177,7 @@ export default function PodCapturePage() {
             </div>
             <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-2">
               <MapPin className="w-3 h-3" />
-              GPS: {trip.dropoff.lat.toFixed(4)}, {trip.dropoff.lng.toFixed(4)} Â· Auto-timestamped
+              GPS: {trip.dropoff.lat.toFixed(4)}, {trip.dropoff.lng.toFixed(4)} &middot; Auto-timestamped
             </div>
           </div>
         </main>
@@ -193,7 +200,7 @@ export default function PodCapturePage() {
     <div className="space-y-6 max-w-3xl mx-auto">
       <PageHeader
         title="Capture Proof of Delivery"
-        subtitle={`Trip ${trip.id} Â· ${trip.dropoff.address}`}
+        subtitle={`Trip ${trip.id} · ${trip.dropoff.address}`}
         breadcrumbs={[{ label: "POD", href: "/pod" }, { label: trip.id }]}
       />
 
@@ -216,7 +223,7 @@ export default function PodCapturePage() {
             <div className="border-2 border-dashed border-brand-border rounded-xl p-8 text-center hover:border-brand-teal hover:bg-brand-teal-light/30 transition">
               <Camera className="w-8 h-8 text-brand-teal mx-auto mb-2" />
               <div className="font-medium text-brand-navy">Tap to upload photos</div>
-              <div className="text-xs text-muted-foreground">JPG, PNG Â· Multiple allowed</div>
+              <div className="text-xs text-muted-foreground">JPG, PNG &middot; Multiple allowed</div>
             </div>
           </label>
           {photos.length > 0 && (
@@ -241,7 +248,7 @@ export default function PodCapturePage() {
           <div className="border-2 border-dashed border-brand-border rounded-xl bg-white">
             <SignatureCanvas ref={sigRef} canvasProps={{ className: "w-full h-48 rounded-xl" }} penColor="#0B1220" />
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2"><MapPin className="w-3 h-3" /> GPS: {trip.dropoff.lat.toFixed(4)}, {trip.dropoff.lng.toFixed(4)} Â· Auto-timestamped</div>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2"><MapPin className="w-3 h-3" /> GPS: {trip.dropoff.lat.toFixed(4)}, {trip.dropoff.lng.toFixed(4)} &middot; Auto-timestamped</div>
         </CardContent>
       </Card>
 
